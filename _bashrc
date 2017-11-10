@@ -1,7 +1,37 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
+export PATH=$PATH:/home/marshal/bin/pycharm-community-2017.1.1/bin
+PATH="/home/marshal/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/marshal/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/marshal/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/marshal/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/marshal/perl5"; export PERL_MM_OPT;
+
 export EDITOR=vi
+export DOCKER_HOST_IP=207.66.231.124
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+
+
+alias ll='ls -ltra'
+alias la='ls -A'
+alias l='ls -CF'
+alias ..='cd ..'
+alias gvim='gvim 2> /dev/null'
+alias vim='gvim 2> /dev/null'
+alias ij='/home/marshal/bin/idea > /home/marshal/bin/log/ij.log 2>&1 &'
+alias pst='/home/marshal/bin/PhpStorm-171.4249.3/bin/phpstorm.sh 2>&1 &'
+alias dps='docker ps -a'
+alias camdb='dockerdb cambuilder'
+
+function sumfile() {
+    awk '{ sum += $1 } END { print sum }' $1
+}
+
+function dockerdb() {
+    docker exec -it $1_mysql mysql -u root -h localhost -ppassword
+}
+
 
 # If not running interactively, don't do anything
 case $- in
@@ -85,17 +115,13 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# some more ls aliases
-alias ll='ls -ltra'
-alias la='ls -A'
-alias l='ls -CF'
-alias ..='cd ..'
-alias gvim='gvim 2> /dev/null'
+
+
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-export PATH=$PATH:/home/marshal/bin/pycharm-community-4.0.2/bin/
+export PATH=$PATH:/home/marshal/bin/pycharm-community-2016.2.3/bin/:/home/marshal/bin/eclipse/java-neon/eclipse
 # Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
@@ -115,5 +141,41 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+PSR_UTIL_PATH="/home/marshal/work/icf.core/util"
+
+function psr() {
+  set -x
+  git fetch origin
+  git diff --name-status origin/devel \
+  | egrep "^[^DXB]\s+.*\.php$" \
+  | sed -E 's/.[[:space:]]+(.*)|.*/\1/' \
+  | xargs -L1 php ${PSR_UTIL_PATH}/phpcs.phar --standard="${PSR_UTIL_PATH}/modifiedPSR2" $1 
+  set +x
+}
+
+function psrall() {
+  echo PSR Full Check: $1
+  set -x
+  php ${PSR_UTIL_PATH}/phpcs.phar --standard="${PSR_UTIL_PATH}/modifiedPSR2" -p --ignore="vendor" $1
+  set +x
+}
+
+function psrhere() {
+  echo PSR Local Check: $1
+  set -x
+  php ${PSR_UTIL_PATH}/phpcs.phar --standard="${PSR_UTIL_PATH}/modifiedPSR2" -p -l --ignore="vendor" $1
+  set +x
+}
+
+function psrfix() {
+  set -x
+  git fetch origin
+  git diff --name-status origin/devel \
+  | egrep "^[^DXB]\s+.*\.php$" \
+  | sed -E 's/.[[:space:]]+(.*)|.*/\1/' \
+  | xargs -L1 php ${PSR_UTIL_PATH}/phpcbf.phar --standard="${PSR_UTIL_PATH}/modifiedPSR2" $1 
+  set +x 
+}
 
 
