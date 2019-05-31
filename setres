@@ -1,5 +1,20 @@
 #!/bin/sh
-RES="1900 1055 60" && \
+
+WID=$1;
+HGT=$2;
+if [ -z "$WID" ]
+then
+    DEF=1;
+    WID=1900;
+fi
+
+if [ -z "$HGT" ]
+then
+    DEF=1;
+    HGT=1055;
+fi
+
+RES="$WID $HGT 60" && \
 DISP=$(xrandr | grep -e " connected [^(]" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/") && \
 MODELINE=$(cvt $(echo $RES) | grep -e "Modeline [^(]" | sed -r 's/.*Modeline (.*)/\1/') && \
 MODERES=$(echo $MODELINE | grep -o -P '(?<=").*(?=")') && \
@@ -9,3 +24,10 @@ xrandr --newmode $MODELINE
 xrandr --addmode $DISP $MODERES
 _EOF
 chmod +x ~/setxrandr
+
+if [ "$DEF" ]
+then
+    echo "Setting defaults..";
+fi
+
+echo "Set $WID x $HGT"
